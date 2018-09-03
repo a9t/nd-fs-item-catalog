@@ -198,11 +198,10 @@ def showItem(item_id):
     item = session.query(Item).filter_by(id=item_id).one_or_none()
     if item is None:
         return 'Object does not exist'
-    creator = getUserInfo(item.user_id)
     # TODO replace with render_template
     output = ''
-    if 'username' not in login_session or creator not is None or
-    creator.id != login_session['user_id']:
+    if ('username' in login_session and
+       item.user_id == login_session['user_id']):
         output += '<a href="/item/' + str(item.id) + '/edit">edit</a>'
         output += ' '
         output += '<a href="/item/' + str(item.id) + '/delete">delete</a>'
@@ -243,6 +242,9 @@ def editItem(item_id):
     if editedItem is None:
         flash('Item deleted in the meantime')
         return redirect('/')
+    if editedItem.user_id != login_session['user_id']:
+        flash('You are not the creator of the item')
+        return redirect('/item/%s/' % str(item_id))
     if request.method == 'POST':
         if request.form['name']:
             editedItem.name = request.form['name']
@@ -265,6 +267,9 @@ def deleteItem(item_id):
     if itemToDelete is None:
         flash('Item deleted in the meantime')
         return redirect('/')
+    if itemToDelete.user_id != login_session['user_id']:
+        flash('You are not the creator of the item')
+        return redirect('/item/%s/' % str(item_id))
     if request.method == 'POST':
         session.delete(itemToDelete)
         session.commit()
