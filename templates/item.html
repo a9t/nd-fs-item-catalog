@@ -1,0 +1,46 @@
+{% extends "main.html" %}
+{% block content %}
+
+    <div class="row divider green">
+        <div class="col-md-12"></div>
+    </div>
+    <div class="row banner menu">
+        <div class="col-md-11 col-md-offset-1 padding-none">
+            <h1>{{ item.name }}</h1>
+        </div>
+    </div>
+
+    <div class="row padding-top padding-bottom">
+        <div class="col-md-1"></div>
+        <div class="col-md-10 padding-none"></div>
+        <div class="col-md-1"></div>
+    </div>
+
+
+        <div class="row">
+            <div class="col-md-1"></div>
+                <div class="col-md-10 item-description">
+                    <p>{{item.description}}</p>
+                    {% if user_id is not none and item.user_id == user_id %}
+                    <a href='{{url_for('editItem', item_id = item.id)}}'>Edit</a> | 
+                    <a href='{{url_for('deleteItem', item_id = item.id)}}'>Delete</a>
+                    {% endif %}
+                </div>
+            <div class="col-md-1"></div>
+        </div>
+
+    <div class="row padding-bottom">
+        <div class="col-md-1"></div>
+        <div class="col-md-10 padding-none"></div>
+        <div class="col-md-1"></div>
+    </div>
+
+   <div class="row">
+            <div class="col-md-1"></div>
+    <a href = '{{url_for('showItemsOfCategory', category_id=category.id)}}'>
+        <button class="btn btn-default delete">
+        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>{{ category.name }}</button>
+    </a>
+   </div>
+   </div>
+{% endblock %}

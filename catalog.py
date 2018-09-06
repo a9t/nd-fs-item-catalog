@@ -137,7 +137,7 @@ def gdisconnect():
             json.dumps('User not connected.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
-    print 'In gdisconnect access token is %s', access_token
+    print 'In gdisconnect access token is %s' % access_token
     print 'User name is: '
     print login_session['username']
 
@@ -154,9 +154,7 @@ def gdisconnect():
         del login_session['username']
         del login_session['email']
         del login_session['picture']
-        response = make_response(json.dumps('Successfully disconnected.'), 200)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        return redirect('/')
     else:
         response = make_response(
             json.dumps('Failed to revoke token for given user.', 400))
@@ -169,27 +167,20 @@ def gdisconnect():
 @app.route('/categories/')
 def showCategories():
     categories = session.query(Category).order_by(asc(Category.name))
-    # TODO replace with render_template
-    output = ''
-    for category in categories:
-        output += '<a href="/category/' + str(category.id) + '">'
-        output += category.name
-        output += '</a><br>'
-    return output
+    return render_template('categories.html', categories=categories,
+                           username=login_session.get('username'))
 
 
 # Show one category
 @app.route('/category/<int:category_id>/')
 def showItemsOfCategory(category_id):
+    category = session.query(Category).filter_by(id=category_id).one_or_none()
+    if category is None:
+        # TODO: redirect to error page
+        return 'Object does not exist'
     items = session.query(Item).filter_by(category_id=category_id)
-    # TODO replace with render_template
-    output = ''
-    if 'username' in login_session:
-        output += '<a href="/item/new/">Add new item</a><br>'
-    for item in items:
-        output += '<a href="/item/' + str(item.id) + '/">' + item.name
-        output += '</a><br>'
-    return output
+    return render_template('category.html', items=items, name=category.name,
+                           username=login_session.get('username'))
 
 
 # Show an item
@@ -198,18 +189,12 @@ def showItem(item_id):
     item = session.query(Item).filter_by(id=item_id).one_or_none()
     if item is None:
         return 'Object does not exist'
-    # TODO replace with render_template
-    output = ''
-    if ('username' in login_session and
-       item.user_id == login_session['user_id']):
-        output += '<a href="/item/' + str(item.id) + '/edit">edit</a>'
-        output += ' '
-        output += '<a href="/item/' + str(item.id) + '/delete">delete</a>'
-        output += '<br>'
-    output += item.name
-    output += '<br>'
-    output += item.description
-    return output
+    category = session.query(Category).filter_by(id=item.category_id).one_or_none()
+    if category is None:
+        return 'Category does not exist'
+    return render_template('item.html', item=item, category=category,
+                           user_id=login_session.get('user_id'),
+                           username=login_session.get('username'))
 
 
 # Create a new item
@@ -217,8 +202,6 @@ def showItem(item_id):
 def newItem():
     if 'username' not in login_session:
         return redirect('/login')
-    # TODO replace with render_template
-    output = ''
     if request.method == 'POST':
         newItem = Item(name=request.form['name'],
                        description=request.form['description'],
@@ -230,7 +213,9 @@ def newItem():
         return redirect(url_for('showItemsOfCategory',
                                 category_id=request.form['category_id']))
     else:
-        return 'TODO add form'
+        categories = session.query(Category).order_by(asc(Category.name))
+        return render_template('newitem.html', categories=categories,
+                               username=login_session.get('username'))
 
 
 # Edit an item
@@ -250,12 +235,22 @@ def editItem(item_id):
             editedItem.name = request.form['name']
         if request.form['description']:
             editedItem.description = request.form['description']
+        if request.form['category_id']:
+            category = session.query(Category).filter_by(
+                               id=request.form['category_id']).one_or_none()
+            if category is None:
+                flash('Item Successfully Edited')
+                return redirect(url_for('showItem', item_id=item_id))
+            editedItem.category_id = request.form['category_id']
         session.add(editedItem)
         session.commit()
         flash('Item Successfully Edited')
         return redirect(url_for('showItem', item_id=item_id))
     else:
-        return 'TODO add form'
+        categories = session.query(Category).order_by(asc(Category.name))
+        return render_template('edititem.html', item=editedItem,
+                               categories=categories,
+                               username=login_session.get('username'))
 
 
 # Delete an item
@@ -277,7 +272,8 @@ def deleteItem(item_id):
         return redirect(url_for('showItemsOfCategory',
                                 category_id=itemToDelete.category_id))
     else:
-        return 'TODO add form'
+        return render_template('deleteitem.html', item=itemToDelete,
+                               username=login_session.get('username'))
 
 
 # JSON APIs
