@@ -9,6 +9,18 @@
         </div>
     </div>
 
+    <div class = 'flash'>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <ul>
+                {% for message in messages %}
+                <li> <strong> {{ message }} </strong> </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        {% endwith %}
+    </div>
+
     <div class="row padding-top padding-bottom">
         <div class="col-md-1"></div>
         <div class="col-md-10 padding-none"></div>
