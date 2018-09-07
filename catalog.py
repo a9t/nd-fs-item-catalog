@@ -116,15 +116,17 @@ def gconnect():
     login_session['user_id'] = getUserID(data['email'])
 
     output = ''
-    output += '<h1>Welcome, '
+    output += '<h2>Welcome, '
     output += login_session['username']
-    output += '!</h1>'
+    output += '!</h2>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;'
-    output += '-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
-    flash("you are now logged in as %s" % login_session['username'])
-    print "done!"
+    output += ' " style = "border-radius: 150px;'
+    output += '-webkit-border-radius: 150px;-moz-border-radius: 150px;'
+    output += 'display: block;'
+    output += 'margin-left: auto;'
+    output += 'margin-right: auto;"> '
+    flash("You are now logged in as %s" % login_session['username'])
     return output
 
 

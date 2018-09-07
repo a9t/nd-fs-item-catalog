@@ -43,7 +43,7 @@
         success: function(result) {
           // Handle or verify the server response if necessary.
           if (result) {
-            $('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
+            $('#result').html('<div style = "text-align: center; margin: auto; width: 400px; padding: 50px 0;">Login Successful!</br>'+ result + '</br>Redirecting...</div>')
             setTimeout(function() {
               window.location.href = "/";
             }, 4000);
