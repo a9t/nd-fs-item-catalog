@@ -178,8 +178,8 @@ def showCategories():
 def showItemsOfCategory(category_id):
     category = session.query(Category).filter_by(id=category_id).one_or_none()
     if category is None:
-        # TODO: redirect to error page
-        return 'Object does not exist'
+        flash('Requested category does not exist')
+        return redirect(url_for('showCategories'))
     items = session.query(Item).filter_by(category_id=category_id)
     return render_template('category.html', items=items, name=category.name,
                            username=login_session.get('username'))
@@ -190,10 +190,14 @@ def showItemsOfCategory(category_id):
 def showItem(item_id):
     item = session.query(Item).filter_by(id=item_id).one_or_none()
     if item is None:
-        return 'Object does not exist'
+        flash('Requested item does not exist')
+        return redirect(url_for('showCategories'))
     category = session.query(Category).filter_by(id=item.category_id).one_or_none()
     if category is None:
-        return 'Category does not exist'
+        # should not happen unless someone deleted the category after
+        # the previous SQL query
+        flash('Internal error: item does not have a category')
+        return redirect(url_for('showCategories'))
     return render_template('item.html', item=item, category=category,
                            user_id=login_session.get('user_id'),
                            username=login_session.get('username'))
@@ -203,7 +207,7 @@ def showItem(item_id):
 @app.route('/item/new/', methods=['GET', 'POST'])
 def newItem():
     if 'username' not in login_session:
-        return redirect('/login')
+        return redirect(url_for('showLogin'))
     if request.method == 'POST':
         newItem = Item(name=request.form['name'],
                        description=request.form['description'],
@@ -211,7 +215,7 @@ def newItem():
                        user_id=login_session['user_id'])
         session.add(newItem)
         session.commit()
-        flash('New Item %s Successfully Created' % (newItem.name))
+        flash('Successfully created item %s' % (newItem.name))
         return redirect(url_for('showItemsOfCategory',
                                 category_id=request.form['category_id']))
     else:
@@ -224,14 +228,14 @@ def newItem():
 @app.route('/item/<int:item_id>/edit', methods=['GET', 'POST'])
 def editItem(item_id):
     if 'username' not in login_session:
-        return redirect('/login')
+        return redirect(url_for('showLogin'))
     editedItem = session.query(Item).filter_by(id=item_id).one_or_none()
     if editedItem is None:
         flash('Item deleted in the meantime')
-        return redirect('/')
+        return redirect(url_for('showCategories'))
     if editedItem.user_id != login_session['user_id']:
         flash('You are not the creator of the item')
-        return redirect('/item/%s/' % str(item_id))
+        return redirect(url_for('showItem', item_id=item_id))
     if request.method == 'POST':
         if request.form['name']:
             editedItem.name = request.form['name']
@@ -241,7 +245,7 @@ def editItem(item_id):
             category = session.query(Category).filter_by(
                                id=request.form['category_id']).one_or_none()
             if category is None:
-                flash('Item Successfully Edited')
+                flash('Could not update item category')
                 return redirect(url_for('showItem', item_id=item_id))
             editedItem.category_id = request.form['category_id']
         session.add(editedItem)
@@ -259,14 +263,14 @@ def editItem(item_id):
 @app.route('/item/<int:item_id>/delete', methods=['GET', 'POST'])
 def deleteItem(item_id):
     if 'username' not in login_session:
-        return redirect('/login')
+        return redirect(url_for('showLogin'))
     itemToDelete = session.query(Item).filter_by(id=item_id).one_or_none()
     if itemToDelete is None:
         flash('Item deleted in the meantime')
-        return redirect('/')
+        return redirect(url_for('showCategories'))
     if itemToDelete.user_id != login_session['user_id']:
         flash('You are not the creator of the item')
-        return redirect('/item/%s/' % str(item_id))
+        return redirect(url_for('showItem', item_id=item_id))
     if request.method == 'POST':
         session.delete(itemToDelete)
         session.commit()
