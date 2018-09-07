@@ -278,19 +278,21 @@ def deleteItem(item_id):
 
 # JSON APIs
 @app.route('/category/<int:category_id>/JSON')
-def categoryJSON(restaurant_id):
+def categoryJSON(category_id):
     items = session.query(Item).filter_by(category_id=category_id).all()
     return jsonify(Items=[i.serialize for i in items])
 
 
 @app.route('/item/<int:item_id>/JSON')
-def menuItemJSON(item_id):
-    item = session.query(Item).filter_by(id=item_id).one()
+def itemJSON(item_id):
+    item = session.query(Item).filter_by(id=item_id).one_or_none()
+    if item is None:
+        return jsonify(Item={})
     return jsonify(Item=item.serialize)
 
 
-@app.route('/category/JSON')
-def restaurantsJSON():
+@app.route('/categories/JSON')
+def categoriesJSON():
     categories = session.query(Category).all()
     return jsonify(Categories=[c.serialize for c in categories])
 
