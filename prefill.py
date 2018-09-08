@@ -48,4 +48,39 @@ session.add(item2)
 session.commit()
 
 
+# Category Frisbee - empty category
+category3 = Category(name="Frisbee")
+session.add(category3)
+session.commit()
+
+
+# Category Baseball
+category4 = Category(name="Baseball")
+session.add(category4)
+session.commit()
+
+item1 = Item(name="Shoes",
+             description="Lorem ipsum dolor sit amet, felis vitae magna,",
+             category=category4,
+             user=user1)
+session.add(item1)
+session.commit()
+
+item2 = Item(name="Bat",
+             description="molestie etiam eu eget erat, ipsum amet," +
+                         "aenean omnis lacinia viverra arcu ut a" +
+                         ". Est aenean vel sagittis elit duis, vulputate " +
+                         "praesent maecenas mauris vehicula tristique, " +
+                         "dictumst feugiat elementum nec sem, bibendum ",
+             category=category4, user=user2)
+session.add(item2)
+session.commit()
+
+item3 = Item(name="Ball",
+             description="non ligula placerat. Maecenas quisque",
+             category=category4, user=user2)
+session.add(item3)
+session.commit()
+
+
 print "added items!"
