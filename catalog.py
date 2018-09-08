@@ -192,7 +192,8 @@ def showItem(item_id):
     if item is None:
         flash('Requested item does not exist')
         return redirect(url_for('showCategories'))
-    category = session.query(Category).filter_by(id=item.category_id).one_or_none()
+    category = session.query(Category).filter_by(
+                                         id=item.category_id).one_or_none()
     if category is None:
         # should not happen unless someone deleted the category after
         # the previous SQL query
