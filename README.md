@@ -31,13 +31,13 @@ You may check this video https://youtu.be/8aGoty0VXgw for a step by step tutoria
 
 ### Database
 
-Modify the database_setup.py file with the categories you wish your application to have. The provided file contains several categories, items and fake users for testing purposes.
+The application uses an SQLite database stored in itemcatalog.db which needs to be initiated with categories. You may do this by modifying the prefill.py file with the categories you wish your application to have. The provided file contains several categories, items and fake users for testing purposes.
 Once you are done modifying the file, you may populate the database by running the following command:
 ```
-python database_setup.py
+python prefill.py
 ```
 
-## Deployment
+## Usage
 
 Run the web application with:
 ```
@@ -47,3 +47,10 @@ python catalog.py
 (Note that the server listens on port 5000 on all interfaces. If you would like to change the port, edit the catalog.py file; this will also require recreating the secrect file.)
 
 Open your favorite browser and type in localhost:5000 to check that the application is running correctly.
+
+### JSON API
+
+Apart from the regular HTML application, there are also several JSON endpoints that can be accesed at:
+* /categories/JSON
+* /category/<id>/JSON
+* /item/<id>/JSON
