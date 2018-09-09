@@ -4,6 +4,8 @@ import httplib2
 import json
 import requests
 
+from functools import wraps
+
 from flask import Flask, render_template, request, redirect, jsonify, url_for
 from flask import flash, make_response
 from flask import session as login_session
@@ -28,6 +30,17 @@ Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'username' in login_session:
+            return f(*args, **kwargs)
+        else:
+            flash("You need to be logged in to perform this action")
+            return redirect('/login')
+    return decorated_function
 
 
 @app.route('/login')
@@ -206,9 +219,8 @@ def showItem(item_id):
 
 # Create a new item
 @app.route('/item/new/', methods=['GET', 'POST'])
+@login_required
 def newItem():
-    if 'username' not in login_session:
-        return redirect(url_for('showLogin'))
     if request.method == 'POST':
         newItem = Item(name=request.form['name'],
                        description=request.form['description'],
@@ -227,9 +239,8 @@ def newItem():
 
 # Edit an item
 @app.route('/item/<int:item_id>/edit', methods=['GET', 'POST'])
+@login_required
 def editItem(item_id):
-    if 'username' not in login_session:
-        return redirect(url_for('showLogin'))
     editedItem = session.query(Item).filter_by(id=item_id).one_or_none()
     if editedItem is None:
         flash('Item deleted in the meantime')
@@ -262,9 +273,8 @@ def editItem(item_id):
 
 # Delete an item
 @app.route('/item/<int:item_id>/delete', methods=['GET', 'POST'])
+@login_required
 def deleteItem(item_id):
-    if 'username' not in login_session:
-        return redirect(url_for('showLogin'))
     itemToDelete = session.query(Item).filter_by(id=item_id).one_or_none()
     if itemToDelete is None:
         flash('Item deleted in the meantime')

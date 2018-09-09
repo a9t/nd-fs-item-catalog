@@ -12,9 +12,21 @@
 
 <body>  
 
-  <!-- GOOGLE PLUS SIGN IN BUTTON-->
-  <div id="signinButton">
-    <span class="g-signin"
+    <div class = 'flash'>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <ul>
+                {% for message in messages %}
+                <li> <strong> {{ message }} </strong> </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- GOOGLE PLUS SIGN IN BUTTON-->
+    <div id="signinButton">
+        <span class="g-signin"
         data-scope="openid email"
         data-clientid="{{CLIENT_ID}}"
         data-redirecturi="postmessage"
@@ -22,9 +34,9 @@
         data-cookiepolicy="single_host_origin"
         data-callback="signInCallback"
         data-approvalprompt="force">
-    </span>
-  </div>
-  <!--END GOOGLE PLUS SIGN IN BUTTON -->
+        </span>
+    </div>
+    <!--END GOOGLE PLUS SIGN IN BUTTON -->
 
   <div id="result"></div>
 
