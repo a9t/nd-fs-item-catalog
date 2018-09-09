@@ -222,8 +222,23 @@ def showItem(item_id):
 @login_required
 def newItem():
     if request.method == 'POST':
+        if 'name' not in request.form:
+            flash('No name parameter present in request')
+            return redirect(url_for('newItem'))
+        if len(request.form['name']) == 0:
+            flash('The name must not be empty')
+            return redirect(url_for('newItem'))
+        if 'category_id' not in request.form:
+            flash('No category id parameter present in request')
+            return redirect(url_for('newItem'))
+        category = session.query(Category).filter_by(
+                           id=request.form['category_id']).one_or_none()
+        if category is None:
+            flash('Provided category does not exist')
+            return redirect(url_for('newItem'))
+
         newItem = Item(name=request.form['name'],
-                       description=request.form['description'],
+                       description=request.form.get('description', ''),
                        category_id=request.form['category_id'],
                        user_id=login_session['user_id'])
         session.add(newItem)
